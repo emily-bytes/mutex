@@ -14,11 +14,11 @@ condition_variable cv;
 int allowed_ID = 1;      // shared counter
 bool isComplete{false};  // flag
 
-/* Modifying thread; safe-incrementing thread */
+/* Modifying thread */
 void increment(int ID) {
     unique_lock<std::mutex> lk(mut);     // Acquire lock
     cout << "Thread " << ID << "'s turn!\n";
-    allowed_ID++;   // Modify the data
+    allowed_ID++;   // Safe modification of data
     if (allowed_ID == RESET_VAL) {
         allowed_ID = 1;
     }
