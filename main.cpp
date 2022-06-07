@@ -14,8 +14,8 @@ condition_variable cv;
 int allowed_ID = 1;      // shared counter
 bool isComplete{false};  // flag
 
-/* Modifying thread */
-void write(int ID) {
+/* Modifying thread; safe-incrementing thread */
+void increment(int ID) {
     unique_lock<std::mutex> lk(mut);     // Acquire lock
     cout << "Thread " << ID << "'s turn!\n";
     allowed_ID++;   // Modify the data
@@ -36,11 +36,11 @@ void read(int ID) {
     }
 }
 
-/* Safe incrementing thread that reads/writes */
-void increment(int ID) {
+/* Thread takes turn */
+void takeTurn(int ID) {
     for (int turns = 0; turns < MAX_TURNS; turns++) {
         read(ID);
-        write(ID);
+        increment(ID);
     }
     cout << "Thread " << ID << " complete!\n";
 }
@@ -50,9 +50,9 @@ int main() {
     int ID1 = 1, ID2 = 2, ID3 = 3;
 
     /* Create three threads and pass ID as parameters */
-    thread thread1{increment, ref(ID1)};
-    thread thread2{increment, ref(ID2)};
-    thread thread3{increment, ref(ID3)};
+    thread thread1{takeTurn, ref(ID1)};
+    thread thread2{takeTurn, ref(ID2)};
+    thread thread3{takeTurn, ref(ID3)};
 
     /* Wait for threads to finish */
     thread1.join();
